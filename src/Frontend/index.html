@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href=".//css/stylessheet.css">
+    <title>Formulario</title>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAvtlGODPY825ifZj_tKjC5KliMWiER0M4&callback=console.debug&libraries=maps,marker&v=beta">
+    </script>
+</head>
+<body onload="iniciarMap()">
+    <form onsubmit ="event.preventDefault(); geocodeAddress1(); geocodeAddress2();">
+            <h2>Formulario de Registro</h2>
+            <label for="ndocumento">Numero de documento:</label>
+            <input type="text" id="ndocumento" name="ndocumento" min="10" required><br><br>
+
+            <label for="nombres">Nombres:</label>
+            <input type="text" id="nombres" name="nombres" required><br><br>
+
+            <label for="apellidos">Apellidos:</label>
+            <input type="text" id="apellidos" name="apellidos" required><br><br>
+
+            <label for="direccionR">Direccion de residencia:</label>
+            <input type="text" id="direccionR" name="direccionR" required>
+            <button type="button" onclick="geocodeAddress1()"> Buscar </button><br><br>
+
+            <label for="lat1">Latitud:</label>
+            <input type="text" id="lat1" name="lat1" readonly>
+
+            <label for="lng1">Longitud:</label>
+            <input type="text" id="lng1" name="lng1" readonly><br><br>
+
+            <label for="direccionT">Direccion de trabajo:</label>
+            <input type="text" id="direccionT" name="direccionT" required>
+            <button type="button" onclick="geocodeAddress2()"> Buscar </button><br><br>
+
+
+            <label for="lat2">Latitud:</label>
+            <input type="text" id="lat2" name="lat2" readonly>
+
+            <label for="lng2">Longitud:</label>
+            <input type="text" id="lng2" name="lng2" readonly><br><br>
+            
+            <button type="submit" onclick="enviar()"> Guardar Usuario </button>
+    </form>
+    <div id="map"></div>
+    <script src="scripts/script.js"></script>
+
+</body>
+</html>
