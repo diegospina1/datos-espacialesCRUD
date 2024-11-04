@@ -7,11 +7,10 @@ import com.admondb.estudiantesregistro.model.Estudiante;
 import java.util.List;
 
 public interface IEstudianteService {
-    EstudianteDTO crearEstudiante(EstudianteDTO estudianteDTO);
-    List<EstudianteDTO> verEstudiantes();
-    EstudianteDTO verEstudiante(String cedula);
-    EstudianteDTO actualizarEstudiante(ActualizarEstudianteDTO estudianteDTO);
+    Estudiante crearEstudiante(EstudianteDTO estudianteDTO);
+    List<Estudiante> verEstudiantes();
+    Estudiante verEstudiante(String cedula);
+    Estudiante actualizarEstudiante(ActualizarEstudianteDTO estudianteDTO);
     void eliminarEstudiante(String cedula);
 
-    Estudiante buscarEstudiantePorCedula(String cedula);
 }

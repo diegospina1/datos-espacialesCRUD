@@ -36,8 +36,7 @@ public class EstudianteDAO implements IEstudianteDAO{
     }
 
     @Override
-    public void eliminarEstudiante(String cedula) {
-        Estudiante estudiante = verEstudiante(cedula);
+    public void eliminarEstudiante(Estudiante estudiante) {
         repository.eliminarEstudiante(estudiante);
     }
 }

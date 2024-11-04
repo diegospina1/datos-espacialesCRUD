@@ -9,5 +9,5 @@ public interface IEstudianteDAO {
     List<Estudiante> verEstudiantes();
     Estudiante verEstudiante(String cedula);
     Estudiante actualizarEstudiante(Estudiante estudiante);
-    void eliminarEstudiante(String cedula);
+    void eliminarEstudiante(Estudiante estudiante);
 }

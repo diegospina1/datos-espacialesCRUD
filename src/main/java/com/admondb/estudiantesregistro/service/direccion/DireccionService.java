@@ -1,118 +1,108 @@
 package com.admondb.estudiantesregistro.service.direccion;
 
-import com.admondb.estudiantesregistro.dao.UbicacionDAO;
 import com.admondb.estudiantesregistro.dao.direccionDAO.IDireccionDAO;
 import com.admondb.estudiantesregistro.dto.ActualizarDatosDTO;
 import com.admondb.estudiantesregistro.dto.DatosDTO;
 import com.admondb.estudiantesregistro.dto.UbicacionDTO;
-import com.admondb.estudiantesregistro.dto.estudianteDTO.EstudianteDTO;
 import com.admondb.estudiantesregistro.model.CategoriaDireccion;
 import com.admondb.estudiantesregistro.model.Direccion;
 import com.admondb.estudiantesregistro.model.Estudiante;
 import com.admondb.estudiantesregistro.model.Ubicacion;
 import com.admondb.estudiantesregistro.service.estudiante.IEstudianteService;
+import com.admondb.estudiantesregistro.service.ubicacion.IUbicacionService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.admondb.estudiantesregistro.mapper.EstudianteMapper.estudianteMapper;
+import static com.admondb.estudiantesregistro.mapper.UbicacionMapper.ubicacionMapper;
+
 @Service
 public class DireccionService implements IDireccionService{
 
     private final IDireccionDAO dao;
-    private final IEstudianteService serviceEstudiante;
-    private final UbicacionDAO serviceUbicacion;
+    private final IEstudianteService estudianteService;
+    private final IUbicacionService ubicacionService;
 
-    public DireccionService(IDireccionDAO dao, IEstudianteService serviceEstudiante, UbicacionDAO serviceUbicacion) {
+    public DireccionService(IDireccionDAO dao, IEstudianteService serviceEstudiante, IUbicacionService ubicacionService) {
         this.dao = dao;
-        this.serviceEstudiante = serviceEstudiante;
-        this.serviceUbicacion = serviceUbicacion;
+        this.estudianteService = serviceEstudiante;
+        this.ubicacionService = ubicacionService;
     }
-
 
     @Override
     public void eliminar(String cedula) {
-        EstudianteDTO estudiante = serviceEstudiante.verEstudiante(cedula);
-        Direccion residencia = dao.verDireccionResidencia(estudiante.id());
-        Direccion trabajo = dao.verDireccionTrabajo(estudiante.id());
+        Estudiante estudiante = estudianteService.verEstudiante(cedula);
+        Direccion residencia = dao.verDireccionResidencia(estudiante.getId());
+        Direccion trabajo = dao.verDireccionTrabajo(estudiante.getId());
 
         dao.eliminarDireccion(residencia);
         dao.eliminarDireccion(trabajo);
-        serviceEstudiante.eliminarEstudiante(cedula);
+        estudianteService.eliminarEstudiante(cedula);
     }
 
     @Override
     public DatosDTO actualizar(ActualizarDatosDTO datos) {
-        EstudianteDTO estudiante = serviceEstudiante.actualizarEstudiante(datos.estudiante());
+        Estudiante estudiante = estudianteService.actualizarEstudiante(datos.estudiante());
         Ubicacion residencia = null;
         Ubicacion trabajo = null;
-        UbicacionDTO residenciaDTO = null;
-        UbicacionDTO trabajoDTO = null;
 
         if (datos.residencia() != null) {
-            residenciaDTO = serviceUbicacion.crear(datos.residencia());
-            residencia = serviceUbicacion.buscarPorId(residenciaDTO.id());
+            residencia = ubicacionService.crearUbicacion(datos.residencia());
         }
         if (datos.trabajo() != null) {
-            trabajoDTO = serviceUbicacion.crear(datos.trabajo());
-            trabajo = serviceUbicacion.buscarPorId(trabajoDTO.id());
+            trabajo = ubicacionService.crearUbicacion(datos.trabajo());
         }
 
-        Direccion actualDirR = dao.verDireccionResidencia(estudiante.id());
-        Direccion actualDirT = dao.verDireccionTrabajo(estudiante.id());
+        Direccion actualDirR = dao.verDireccionResidencia(estudiante.getId());
+        Direccion actualDirT = dao.verDireccionTrabajo(estudiante.getId());
 
-        actualDirR.actualizar(serviceEstudiante.buscarEstudiantePorCedula(estudiante.cedula()), residencia, CategoriaDireccion.RESIDENCIA);
-        actualDirT.actualizar(serviceEstudiante.buscarEstudiantePorCedula(estudiante.cedula()), trabajo, CategoriaDireccion.TRABAJO);
+        actualDirR.actualizar(estudiante, residencia, CategoriaDireccion.RESIDENCIA);
+        actualDirT.actualizar(estudiante, trabajo, CategoriaDireccion.TRABAJO);
 
         dao.actualizarDireccion(actualDirR);
         dao.actualizarDireccion(actualDirT);
-        return new DatosDTO(estudiante, residenciaDTO, trabajoDTO);
+
+        return new DatosDTO(estudianteMapper.toEstudianteDTO(estudiante),
+                ubicacionMapper.toUbicacionDTO(residencia), ubicacionMapper.toUbicacionDTO(trabajo));
     }
 
     @Override
     public DatosDTO verPorEstudiante(String cedula) {
-        EstudianteDTO estudiante = serviceEstudiante.verEstudiante(cedula);
+        Estudiante estudiante = estudianteService.verEstudiante(cedula);
         return buscarDirecciones(estudiante);
     }
 
     @Override
     public List<DatosDTO> verTodas() {
         List<DatosDTO> datos = new ArrayList<>();
-        List<EstudianteDTO> estudiantes = serviceEstudiante.verEstudiantes();
-
-        for (EstudianteDTO estudiante : estudiantes) {
+        List<Estudiante> estudiantes = estudianteService.verEstudiantes();
+        for (Estudiante estudiante : estudiantes) {
             datos.add(buscarDirecciones(estudiante));
         }
-
         return datos;
     }
 
     @Override
     public DatosDTO crear(DatosDTO datos) {
-        EstudianteDTO estudianteDTO = serviceEstudiante.crearEstudiante(datos.estudiante());
-        UbicacionDTO residenciaDTO = serviceUbicacion.crear(datos.residencia());
-        UbicacionDTO trabajoDTO = serviceUbicacion.crear(datos.trabajo());
+        Estudiante estudiante = estudianteService.crearEstudiante(datos.estudiante());
+        Ubicacion residencia = ubicacionService.crearUbicacion(datos.residencia());
+        Ubicacion trabajo = ubicacionService.crearUbicacion(datos.trabajo());
 
-        Estudiante estudiante = serviceEstudiante.buscarEstudiantePorCedula(estudianteDTO.cedula());
+        dao.crearDireccion(new Direccion(estudiante, residencia, CategoriaDireccion.RESIDENCIA));
+        dao.crearDireccion(new Direccion(estudiante, trabajo, CategoriaDireccion.TRABAJO));
 
-        Direccion residenciaAsociacion = new Direccion(estudiante,
-                serviceUbicacion.buscarPorId(residenciaDTO.id()), CategoriaDireccion.RESIDENCIA);
-        Direccion trabajoAsociacion = new Direccion(estudiante,
-                serviceUbicacion.buscarPorId(trabajoDTO.id()), CategoriaDireccion.TRABAJO);
-
-        dao.crearDireccion(residenciaAsociacion);
-        dao.crearDireccion(trabajoAsociacion);
-
-        return new DatosDTO(estudianteDTO, residenciaDTO, trabajoDTO);
+        return new DatosDTO(estudianteMapper.toEstudianteDTO(estudiante), ubicacionMapper.toUbicacionDTO(residencia),
+                ubicacionMapper.toUbicacionDTO(trabajo));
     }
 
-    public DatosDTO buscarDirecciones(EstudianteDTO estudiante){
-        Ubicacion residencia = dao.verDireccionResidencia(estudiante.id()).getUbicacion();
-        Ubicacion trabajo = dao.verDireccionTrabajo(estudiante.id()).getUbicacion();
+    public DatosDTO buscarDirecciones(Estudiante estudiante){
+        Ubicacion residencia = dao.verDireccionResidencia(estudiante.getId()).getUbicacion();
+        Ubicacion trabajo = dao.verDireccionTrabajo(estudiante.getId()).getUbicacion();
 
-        UbicacionDTO residenciaDTO = new UbicacionDTO(residencia.getId(), residencia.getCoordenadas().getY(), residencia.getCoordenadas().getX());
-        UbicacionDTO trabajoDTO = new UbicacionDTO(residencia.getId(), trabajo.getCoordenadas().getY(), residencia.getCoordenadas().getX());
-
-        return new DatosDTO(estudiante, residenciaDTO, trabajoDTO);
+        UbicacionDTO residenciaDTO = ubicacionMapper.toUbicacionDTO(residencia);
+        UbicacionDTO trabajoDTO = ubicacionMapper.toUbicacionDTO(trabajo);
+        return new DatosDTO(estudianteMapper.toEstudianteDTO(estudiante), residenciaDTO, trabajoDTO);
     }
 }

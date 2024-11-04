@@ -15,6 +15,7 @@ import java.util.List;
 
 @Getter
 @Entity
+@Setter
 @Table(name = "estudiantes")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,7 +40,6 @@ public class Estudiante {
     @Column(name = "apellidos", nullable = false)
     private String apellidos;
 
-    @Setter
     @OneToMany(mappedBy = "estudiante")
     private List<Direccion> direcciones;
 

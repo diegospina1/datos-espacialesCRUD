@@ -5,6 +5,7 @@ import com.admondb.estudiantesregistro.dto.estudianteDTO.ActualizarEstudianteDTO
 import com.admondb.estudiantesregistro.dto.estudianteDTO.EstudianteDTO;
 import com.admondb.estudiantesregistro.model.Estudiante;
 import org.springframework.stereotype.Service;
+import static com.admondb.estudiantesregistro.mapper.EstudianteMapper.estudianteMapper;
 
 import java.util.List;
 
@@ -18,40 +19,30 @@ public class EstudianteService implements IEstudianteService{
     }
 
     @Override
-    public EstudianteDTO crearEstudiante(EstudianteDTO estudianteDTO) {
-        Estudiante estudiante = dao.crearEstudiante(new Estudiante(estudianteDTO.cedula(), estudianteDTO.nombres(), estudianteDTO.apellidos()));
-        return new EstudianteDTO(estudiante.getId(), estudiante.getCedula(), estudiante.getNombres(), estudiante.getApellidos());
+    public Estudiante crearEstudiante(EstudianteDTO estudianteDTO) {
+        return dao.crearEstudiante(estudianteMapper.toEstudiante(estudianteDTO));
     }
 
     @Override
-    public List<EstudianteDTO> verEstudiantes() {
-        return dao.verEstudiantes().stream()
-                .map(e -> new EstudianteDTO(e.getId(), e.getCedula(), e.getNombres(), e.getApellidos()))
-                .toList();
+    public List<Estudiante> verEstudiantes() {
+        return dao.verEstudiantes();
     }
 
     @Override
-    public EstudianteDTO verEstudiante(String cedula) {
-        Estudiante estudiante = dao.verEstudiante(cedula);
-        return new EstudianteDTO(estudiante.getId(), estudiante.getCedula(), estudiante.getNombres(), estudiante.getApellidos());
+    public Estudiante verEstudiante(String cedula) {
+        return dao.verEstudiante(cedula);
     }
 
     @Override
-    public EstudianteDTO actualizarEstudiante(ActualizarEstudianteDTO datosActualizar) {
-        Estudiante estudiante = dao.verEstudiante(datosActualizar.cedula());
+    public Estudiante actualizarEstudiante(ActualizarEstudianteDTO datosActualizar) {
+        Estudiante estudiante = verEstudiante(datosActualizar.cedula());
         estudiante.actualizar(datosActualizar);
-        Estudiante actualizado = dao.actualizarEstudiante(estudiante);
-
-        return new EstudianteDTO(actualizado.getId(), actualizado.getCedula(), actualizado.getNombres(), actualizado.getApellidos());
+        return dao.actualizarEstudiante(estudiante);
     }
 
     @Override
     public void eliminarEstudiante(String cedula) {
-        dao.eliminarEstudiante(cedula);
-    }
-
-    @Override
-    public Estudiante buscarEstudiantePorCedula(String cedula) {
-        return dao.verEstudiante(cedula);
+        Estudiante estudiante = verEstudiante(cedula);
+        dao.eliminarEstudiante(estudiante);
     }
 }
