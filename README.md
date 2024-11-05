@@ -12,7 +12,6 @@ Proyecto de aplicación web para gestionar y calcular la distancia entre la dire
 ### Estructura del Backend (Spring Boot)
 
 Ruta: `backend/`
-- `.gitignore` : Archivo de configuración para ignorar archivos específicos en Git.
 - `build.gradle` : Archivo de configuración de Gradle para la gestión de dependencias y compilación.
 - `settings.gradle` : Configuración del proyecto para Gradle.
 
@@ -36,6 +35,5 @@ Ruta: `frontend/`
   - `style.css` : Archivo de estilos para dar formato a la aplicación frontend.
 - `scripts/` : Contiene los archivos JavaScript.
   - `app.js` : Archivo JavaScript principal que maneja la lógica de envío de datos desde el formulario al backend, y el uso de la API de Google Maps para obtener coordenadas de las direcciones.
-- `node_modules/` : Directorio de dependencias gestionadas por npm.
 - `package.json` : Configuración de npm con las dependencias necesarias para el frontend.
 - `package-lock.json` : Archivo de bloqueo de versiones para las dependencias npm.
