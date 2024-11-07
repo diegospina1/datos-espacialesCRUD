@@ -2,6 +2,7 @@ package com.admondb.estudiantesregistro.controller;
 
 import com.admondb.estudiantesregistro.dto.ActualizarDatosDTO;
 import com.admondb.estudiantesregistro.dto.DatosDTO;
+import com.admondb.estudiantesregistro.dto.estudianteDTO.EstudianteDistanciaDTO;
 import com.admondb.estudiantesregistro.service.direccion.IDireccionService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -47,5 +48,11 @@ public class DireccionController {
     public ResponseEntity<DatosDTO> eliminar(@PathVariable("cedula") String cedula){
         service.eliminar(cedula);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/ordenar")
+    public ResponseEntity<List<EstudianteDistanciaDTO>> listarEstudiantesPorDistancia() {
+        List<EstudianteDistanciaDTO> estudiantesConDistancia = service.obtenerEstudiantesConDistancia();
+        return ResponseEntity.ok(estudiantesConDistancia);
     }
 }

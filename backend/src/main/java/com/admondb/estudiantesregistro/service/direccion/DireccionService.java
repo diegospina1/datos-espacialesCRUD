@@ -1,9 +1,11 @@
 package com.admondb.estudiantesregistro.service.direccion;
 
 import com.admondb.estudiantesregistro.dao.direccionDAO.IDireccionDAO;
+import com.admondb.estudiantesregistro.dao.repository.DireccionRepository;
 import com.admondb.estudiantesregistro.dto.ActualizarDatosDTO;
 import com.admondb.estudiantesregistro.dto.DatosDTO;
 import com.admondb.estudiantesregistro.dto.UbicacionDTO;
+import com.admondb.estudiantesregistro.dto.estudianteDTO.EstudianteDistanciaDTO;
 import com.admondb.estudiantesregistro.model.CategoriaDireccion;
 import com.admondb.estudiantesregistro.model.Direccion;
 import com.admondb.estudiantesregistro.model.Estudiante;
@@ -24,11 +26,13 @@ public class DireccionService implements IDireccionService{
     private final IDireccionDAO dao;
     private final IEstudianteService estudianteService;
     private final IUbicacionService ubicacionService;
+    private final DireccionRepository direccionRepository;
 
-    public DireccionService(IDireccionDAO dao, IEstudianteService serviceEstudiante, IUbicacionService ubicacionService) {
+    public DireccionService(IDireccionDAO dao, IEstudianteService serviceEstudiante, IUbicacionService ubicacionService, DireccionRepository direccionRepository) {
         this.dao = dao;
         this.estudianteService = serviceEstudiante;
         this.ubicacionService = ubicacionService;
+        this.direccionRepository = direccionRepository;
     }
 
     @Override
@@ -108,5 +112,20 @@ public class DireccionService implements IDireccionService{
         UbicacionDTO trabajoDTO = ubicacionMapper.toUbicacionDTO(trabajo);
 
         return new DatosDTO(estudianteMapper.toEstudianteDTO(estudiante), residenciaDTO, trabajoDTO);
+    }
+
+    public List<EstudianteDistanciaDTO> obtenerEstudiantesConDistancia() {
+        List<Object[]> resultados = direccionRepository.obtenerEstudiantesDistancia();
+        List<EstudianteDistanciaDTO> listaDTO = new ArrayList<>();
+
+        for (Object[] fila : resultados) {
+            String nombres = (String) fila[0];
+            String apellidos = (String) fila[1];
+            Double distancia = ((Number) fila[2]).doubleValue();
+
+            listaDTO.add(new EstudianteDistanciaDTO(nombres, apellidos, distancia));
+        }
+
+        return listaDTO;
     }
 }
