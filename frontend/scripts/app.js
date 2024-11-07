@@ -1,6 +1,9 @@
 'use strict';
 
 const url = 'http://localhost:8080';
+const tableBody = document.querySelector('#studentsTable tbody');
+const sortAscButton = document.getElementById('sortAsc');
+const sortDescButton = document.getElementById('sortDesc');
 
 let map;
 let marker1, marker2;
@@ -54,14 +57,22 @@ function geocodeAddress(marker, latField, lngField, addressField) {
 }
 
 function geocodeAddress1() {
+    if (event) event.preventDefault();
     geocodeAddress(marker1, 'lat1', 'lng1', 'direccionR');
 }
 
 function geocodeAddress2() {
+    if (event) event.preventDefault();
     geocodeAddress(marker2, 'lat2', 'lng2', 'direccionT');
 }
 
-function sendStudent() {
+async function sendStudent() {
+
+    geocodeAddress1();
+    geocodeAddress2();
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const formData = new FormData(document.getElementById('studentForm'));
 
     const DocNumber = formData.get('ndocumento');
@@ -73,7 +84,7 @@ function sendStudent() {
     const lngT = formData.get('lng2');
 
     if (!latR || !lngR || !latT || !lngT) {
-        alert("Por favor, asegúrese de obtener las oordenas de residencia y trabajo.");
+        alert("Por favor, asegúrese de obtener las coordenas de residencia y trabajo.");
         return;
     }
 
@@ -118,4 +129,66 @@ function sendStudent() {
             console.error('Error:', error);
             alert("Hubo un problema al registrar el estudiante.");
         })
+}
+
+async function fethStudents() {
+    try {
+        const response = await fetch(url + "/ordenar");
+        if (!response.ok) throw new Error('Error al obtener los datos.');
+        const data = await response.json();
+        populateTable(data);
+    } catch (error) {
+        console.error('Error al cargar los estudiantes.',  error);
+        alert('Hubo un problema al cargar los estudiantes.');
+    }
+}
+
+function populateTable(data) {
+    tableBody.innerHTML = '';
+
+    data.forEach(student => {
+       const row = document.createElement('tr');
+
+       const nameCell = document.createElement('td');
+       nameCell.textContent = student.nombres;
+
+       const lastNameCell = document.createElement('td');
+       lastNameCell.textContent = student.apellidos;
+
+       const distanceCell = document.createElement('td');
+       distanceCell.textContent = (student.distancia / 1000).toFixed(2);
+
+       row.appendChild(nameCell);
+       row.appendChild(lastNameCell);
+       row.appendChild(distanceCell);
+
+       tableBody.appendChild(row);
+    });
+}
+
+function sortTable(order) {
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    const sortedRows = rows.sort((a, b) => {
+        const distanceA = parseFloat(a.cells[2].textContent);
+        const distanceB = parseFloat(b.cells[2].textContent);
+
+        return order === 'asc' ? distanceA - distanceB : distanceB - distanceA;
+    });
+
+    tableBody.innerHTML = '';
+    sortedRows.forEach(row => tableBody.appendChild(row));
+}
+
+sortAscButton.addEventListener('click', () => sortTable('asc'));
+sortDescButton.addEventListener('click', () => sortTable('desc'));
+
+document.addEventListener('DOMContentLoaded', initMap);
+document.addEventListener('DOMContentLoaded', fethStudents);
+
+function navigateToStudentsList() {
+    window.location.href = './pages/studentsList.html';
+}
+
+function navigateToForm() {
+    window.location.href = '../index.html';
 }
